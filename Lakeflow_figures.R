@@ -52,9 +52,6 @@ cunique$lakeFlow=factor(cunique$lakeFlow,levels=c('Allatoona inflow','Allatoona 
                                           'Mohave inflow','Mohave outflow',
                                           'Tuttle Creek inflow', 'Tuttle Creek outflow','Tuttle Creek Inflow 2 inflow'))
 
-plot(cunique[cunique$lakeFlow=='Tuttle Creek inflow']$lf, 
-     cunique[cunique$lakeFlow=='Tuttle Creek Inflow 2 inflow']$lf)
-abline(0,1)
 ##############################################################################################################
 ##Q scatter plot and performance metrics. 
 ##############################################################################################################
@@ -67,15 +64,11 @@ modelPlot=ggplot(data=cunique)+
   coord_cartesian(xlim=c(1,1000),ylim=c(1,1000))+
   geom_abline(slope=1,intercept = 0,lty=2,size=0.5)+
   geom_point(aes(x=gage,y=lf,color=lakeFlow),size=0.5,alpha=0.2)+
-  #scale_shape_manual(values=c(1, 2,3))+
-  #geom_text(data=cunique[,rmse(lf,gage),by=list(model,type)],aes(x=7, y=900,label=paste0('RMSE=',sprintf("%.2f", round(V1,2)))),size=3)+
   geom_text(data=cunique[,mean(abs(lf-gage),na.rm=TRUE),by=list(model,type)],aes(x=7, y=900,label=paste0('MAE=',sprintf("%.2f", round(V1,2)))),size=3)+
   geom_text(data=cunique[,mean((lf-gage),na.rm=TRUE),by=list(model,type)],aes(x=7, y=500,label=paste0('Bias=',sprintf("%.2f", round(V1,2)))),size=3)+
   geom_text(data=cunique[,sqrt(mean((lf-gage)^2)),by=list(model,type)],aes(x=7, y=200,label=paste0('RMSE=',sprintf("%.2f", round(V1,2)))),size=3)+
   facet_wrap(~type+model, ncol=4,labeller = label_wrap_gen(multi_line=FALSE))+
   scale_color_brewer(palette='Dark2')+
-  #scale_color_manual(values=c(dk2[4],dk2[5],dk2[6]))+
-  #scale_color_manual(values=c('purple','yellow','orange'))+
   ylab('LakeFlow Discharge (cms)')+
   xlab('Gauge Discharge (cms)')+
   theme_bw()+
@@ -104,18 +97,9 @@ bar[variable=='nse',list(quantile(value,0.25)),by=list(model,type)]
 source("https://raw.githubusercontent.com/datavizpyr/data/master/half_flat_violinplot.R")
 
 barPlot=ggplot(data=bar)+
-  # geom_rect(data = background,aes(fill = model),alpha=0.25,xmin = -Inf,xmax = Inf,
-  #           ymin = -Inf,ymax = Inf)+
-  # scale_fill_manual(values=c('white','#C48672','#5694DD','#BD69B8'))+  
-  #stat_ecdf(aes(y=value, color=variable))+
-  geom_flat_violin(aes(x=variable,y=value), fill='grey90',color='grey90')+
   geom_boxplot(aes(x=variable,y=value),fill='lightblue',outlier.shape = NA,width=0.3,lwd=0.25)+
   coord_cartesian(ylim=c(-50,125))+
-  # geom_point(aes(x=gage,y=lf,color=lakeFlow,alpha=0.9),size=0.25)+
-  # geom_text(data=c[,rmse(lf,gage),by=list(model,type)],aes(x=7, y=900,label=paste0('RMSE=',sprintf("%.2f", round(V1,2)))),size=3)+
-  # geom_text(data=c[,mean(abs(lf-gage),na.rm=TRUE),by=list(model,type)],aes(x=7, y=300,label=paste0('MAE=',sprintf("%.2f", round(V1,2)))),size=3)+
   facet_wrap(~type+model, ncol=4,labeller = label_wrap_gen(multi_line=FALSE))+
-  #scale_fill_brewer(palette='Dark2')+
   ylab('Percent')+
   xlab('')+
   theme_bw()+
@@ -153,7 +137,7 @@ gageData=bind_rows(allInf, allOut,moInf, moOut,tcInf,tcOut,tcInf2)
 gageData$Date = as.Date(gageData$Date)
 
 
-hyPlot2=ggplot(gageData)+#c[!is.na(gage)][model=='none'])+
+hyPlot2=ggplot(gageData)+
   facet_wrap(~factor(lakeFlow,levels=c('Allatoona inflow','Allatoona outflow',
                                        'Mohave inflow','Mohave outflow',
                                        'Tuttle Creek inflow', 'Tuttle Creek outflow','Tuttle Creek Inflow 2 inflow'
@@ -161,13 +145,10 @@ hyPlot2=ggplot(gageData)+#c[!is.na(gage)][model=='none'])+
   geom_line(aes(x=Date,y=gage),size=0.5,col='grey50')+
   geom_line(data=cunique[!is.na(lf)&type=='Corrupted'][model=='none'|model=='EQ'],
             aes(x=date,y=lf,color=model),alpha=0.5,size=0.5)+
-  #geom_point(data=c[c$model=='EQ'&!is.na(lf)&type=='corrupted',],aes(x=Date, lf),col='blue4',size=0.25)+
   scale_color_manual(values=c('blue4','red3'))+
   scale_x_date(breaks = scales::pretty_breaks(n = 3)) +
-  #geom_text(data=hyText,aes(x=V3, y=Inf,label=paste0('NSE=',sprintf("%.2f", round(NSE,2)), ', ','rBias(%)=',sprintf("%.0f", round(rBias,2)),', ','NRMSE(%)=',sprintf("%.0f", round(nrmse,2)))),size=3,hjust=0,vjust=1,nudge_x = (365*0.5),nudge_y=-500)+
   ylab('Discharge (cms)')+
   xlab(NULL)+
-  #geom_text(data=jnd[jnd$type=='synthetic',],aes(x=median(jnd$Date),max(jnd$`out Q (m3/s)`), label=paste0('NSE=',round(nseOut,2))))+
   theme_bw()+
   theme(legend.position = 'top',
         legend.title=element_blank(),
@@ -242,50 +223,6 @@ aPlot=ggplot(data=cunique[cunique$variable=='a'])+
         aspect.ratio = 1,panel.grid = element_line(size=0.25),
         panel.spacing = unit(0.5, "lines"),plot.margin = margin(5.5,7.25,5.5,5.5))
 aPlot
-
-ndf = cunique[cunique$variable=='n']
-ndf$gage=(ndf$gage)
-ndf$geo=(ndf$geo)
-ndf$value=(ndf$value)
-nPlot=ggplot(data=ndf)+
-  # geom_rect(data = background,aes(fill = model),alpha=0.25,xmin = -Inf,xmax = Inf,
-  #           ymin = -Inf,ymax = Inf)+
-  # scale_fill_manual(values=c('white','#C48672','#5694DD','#BD69B8'))+
-  geom_density(aes(value, ..scaled..),
-               fill = 'grey20',
-               alpha = 0.25)+
-  scale_x_log10()+
-  geom_vline(data=ndf,aes(xintercept=gage),lty=1,size=0.5,col='blue')+
-  geom_vline(data=ndf,aes(xintercept=geo),lty=2,size=0.5,col='red')+
-  # geom_text(data=c[,rmse(log(flp$n_in),log(flp$n_true)),by=list(model,type)],aes(x=0.02, y=4,label=paste0('RMSE=',sprintf("%.2f", round(V1,2)))),size=3)+
-  # geom_text(data=c[,mean(abs(flp$n_in-flp$n_true),na.rm=TRUE),by=list(model,type)],aes(x=0.02, y=3,label=paste0('MAE=',sprintf("%.2f", round(V1,2)))),size=3)+
-  # geom_text(data=c[,mean(abs(flp$n_in-flp$n_geoBam),na.rm=TRUE),by=list(model,type)],aes(x=0.02, y=3,label=paste0('MAE=',sprintf("%.2f", round(V1,2)))),size=3)+
-  facet_wrap(~type+model, ncol=4,labeller = label_wrap_gen(multi_line=FALSE))+
-  scale_color_brewer(palette='Dark2')+
-  ylab('Density')+
-  xlab('LakeFlow Mannings n')+
-  theme_bw()+
-  theme(legend.position = 'top',
-        legend.title = element_blank(),
-        axis.title=element_text(size=12, color="black"),
-        axis.text=element_text(size=10, color="black"),
-        legend.text=element_text(size=9, color="black"),
-        strip.background = element_blank(),
-        strip.placement = "outside",
-        strip.text = element_text(size=12, color="black"),
-        aspect.ratio = 1,panel.grid = element_line(size=0.25),
-        panel.spacing = unit(0.5, "lines"),plot.margin = margin(5.5,7.25,5.5,5.5))
-nPlot
-
-cPlot=ggarrange(aPlot,nPlot,nrow=2,common.legend = TRUE,labels='auto') 
-cPlot
-ggsave("E:\\research\\RivLake\\Figures\\combPlotWide.png",cPlot,
-       dpi=1000,units="in",width=6.5,height=8)
-
-
-
-
-
 
 ndf = cunique[cunique$variable=='n']
 ndf$gage=log(ndf$gage)
