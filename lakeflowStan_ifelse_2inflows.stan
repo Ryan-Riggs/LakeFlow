@@ -1,9 +1,4 @@
 data {
- // Options
- // int<lower=0, upper=1> inc_none;
- // int<lower=0, upper=1> inc_et; // include et? 0=no, 1=yes
- // int<lower=0, upper=1> inc_lateral; // include lateral? 0=no, 1=yes
- // int<lower=0, upper=1> inc_et_lateral; // include et and lateral? 0=no, 1=yes
 
  // bounds on parameters
  real nInlower;
@@ -81,8 +76,6 @@ parameters {
 }
 
 transformed parameters {
-  //vector[N] lhs; // LHS for Manning likelihood
-  //vector[N] rhs; // log area for Manning's equation
   vector[N] lhsIn; // LHS for Manning likelihood
   vector[N] rhsIn; // log area for Manning's equation
   vector[N] lhsIn2; // LHS for Manning likelihood
@@ -106,27 +99,10 @@ transformed parameters {
   
   lhsOut = (4*w2)-(3*s2);
   rhsOut = ((-6*nOut)+(10*a2))-(6*logQ_out);
-  // if(inc_none){
-  // lhsDV = (dv/7);
-  // rhsDV = exp(logQ_in)+exp(logQ_in2)-exp(logQ_out);
-  // }
-  // if(inc_et){
-  // lhsDV = (dv/7)+et;
-  // rhsDV = exp(logQ_in)+exp(logQ_in2)-exp(logQ_out);
-  // }
-  // if(inc_lateral){
-  // lhsDV = (dv/7)-lateral;
-  // rhsDV = exp(logQ_in)+exp(logQ_in2)-exp(logQ_out);
-  // }
-  // if(inc_et_lateral){
-  // lhsDV = (dv/7)-lateral+et;
-  // rhsDV = exp(logQ_in)+exp(logQ_in2)-exp(logQ_out);
-  // }
+  
   lhsDV = (dv/7)-lateral+et;
   rhsDV = exp(logQ_in)+exp(logQ_in2)-exp(logQ_out);
 }
-##compare lhsDV/rhsDv vs lhs/rhs
-
 
 model {
   logQ_in~normal(q,qInSd);
@@ -139,7 +115,6 @@ model {
   nOut ~ normal(nOutHat, nOutSd);
   aOut + daOutShift~lognormal(aOutHat, aOutSd);
   
-  //lhs~normal(rhs, sigma);
   lhsIn~normal(rhsIn, sigmaIn);
   lhsIn2~normal(rhsIn2, sigmaIn2);
   lhsOut~normal(rhsOut, sigmaOut);
