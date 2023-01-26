@@ -1,11 +1,10 @@
-################################################################################
-##LakeFlow with corrupted data. 
-################################################################################
 library(rstan)
 library(data.table)
 library(dplyr)
 library(sf)
 library(raster)
+
+##Read in data. 
 outpath = 'E:\\research\\RivLake\\stan_sensitivity\\'
 grades=fread('E:\\research\\RivLake\\updated\\meanQ.csv')
 lakeFlowCorrupted=function(page,et,q){
